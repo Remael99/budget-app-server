@@ -1,0 +1,10 @@
+#node modules
+/node_modules
+
+# dotenv environment variables file
+.env
+.env.test
+
+#postman_collection
+
+/postman_collection.json
