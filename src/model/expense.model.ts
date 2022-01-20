@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { BudgetDocument, nanoid } from "./budget.model"
+import {  nanoid } from "./budget.model"
 
 import { UserDocument } from "./user.model"
 
@@ -10,9 +10,9 @@ import { UserDocument } from "./user.model"
 //instead ot type mongooose lib
 export interface ExpenseDocument extends  mongoose.Document{
     user:UserDocument["_id"], 
-    budgetId:BudgetDocument["_id"]
+    budgetId:String
     amount:Number
-    descriptions:String
+    description:String
     createdAt:Date
     updatedAt:Date
  
@@ -23,7 +23,7 @@ const expenseSchema = new mongoose.Schema({
         type:String,
         required:true,
         unique:true,
-        default:() => `budget_${nanoid()}`
+        default:() => `expense_${nanoid()}`
     },
      user:{
          type:mongoose.Schema.Types.ObjectId,
@@ -34,12 +34,13 @@ const expenseSchema = new mongoose.Schema({
         type:String,
        
      },
+
      amount:{
         type:Number,
        required:true
      },    
     budgetId:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:"Budget",
     },
 

@@ -5,7 +5,7 @@ import { createBudget,findBudget, findAndUpdateBudget, deleteBudget } from "../s
 export async function createBudgetHandler(req:Request,res:Response){
     try {  
 
-        const userId = res.locals.user._id
+        const userId = res.locals.user._id || res.locals.user._doc._id 
 
         const body = req.body
 
@@ -40,7 +40,7 @@ export async function getBudgetHandler(req:Request,res:Response){
 
 export async function updateBudgetHandler(req:Request,res:Response){
     try {  
-        const userId = res.locals.user._id
+        const userId = res.locals.user._id || res.locals.user._doc._id 
 
         const budgetId = req.params.budgetId
 
@@ -54,17 +54,17 @@ export async function updateBudgetHandler(req:Request,res:Response){
         })
         }
 
-        console.log(budget.user, userId)
+        
         if(String(budget.user) !== userId){
             return res.status(403).send({
                 message:"cannot update not user"
             })
         }
 
-        const updatedProduct = await findAndUpdateBudget({budgetId},update,{new:true})
+        const updatedBudget = await findAndUpdateBudget({budgetId},update,{new:true})
 
 
-   return res.send(updatedProduct)
+   return res.send(updatedBudget)
     } catch (error:any) {
         throw new Error(error)
     }
@@ -72,7 +72,7 @@ export async function updateBudgetHandler(req:Request,res:Response){
 
 export async function deleteBudgetHandler(req:Request,res:Response){
     try {  
-        const userId = res.locals.user._doc._id
+        const userId = res.locals.user._id || res.locals.user._doc._id 
 
         const budgetId = req.params.budgetId
 
