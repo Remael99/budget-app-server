@@ -49,7 +49,7 @@ export async function updateBudgetHandler(req:Request,res:Response){
         const budget = await findBudget({budgetId})
 
         if(!budget){
-           return  res.send({
+           return  res.status(404).send({
                 message:"no such budget"
         })
         }
