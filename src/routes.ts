@@ -1,43 +1,104 @@
-import {  Express, Request,Response } from "express";
-import { createBudgetHandler, deleteBudgetHandler, getBudgetHandler, updateBudgetHandler } from "./controller/budget.controller";
-import { createExpenseHandler, deleteExpenseHandler, getExpenseHandler, updateExpenseHandler } from "./controller/expense.controller";
-import { createSessionHandler, deleteSessionHandler, getUserSessionHandler } from "./controller/session.controller";
+import { Express, Request, Response } from "express";
+import {
+  createBudgetHandler,
+  deleteBudgetHandler,
+  getBudgetHandler,
+  getBudgetsHandler,
+  updateBudgetHandler,
+} from "./controller/budget.controller";
+import {
+  createExpenseHandler,
+  deleteExpenseHandler,
+  getExpenseHandler,
+  updateExpenseHandler,
+} from "./controller/expense.controller";
+import {
+  createSessionHandler,
+  deleteSessionHandler,
+  getUserSessionHandler,
+} from "./controller/session.controller";
 import { createUserHandler } from "./controller/user.controller";
 import requireUser from "./middleware/requireUser";
 import validate from "./middleware/validateResource";
-import { createBudgetSchema, deleteBudgetSchema, getBudgetSchema, updateBudgetSchema } from "./schema/budget.schema";
-import { createExpenseSchema, deleteExpenseSchema, getExpenseSchema, updateExpenseSchema } from "./schema/expense.schema";
+import {
+  createBudgetSchema,
+  deleteBudgetSchema,
+  getBudgetSchema,
+  updateBudgetSchema,
+} from "./schema/budget.schema";
+import {
+  createExpenseSchema,
+  deleteExpenseSchema,
+  getExpenseSchema,
+  updateExpenseSchema,
+} from "./schema/expense.schema";
 import { createSessionSchema } from "./schema/session.schema";
 import { createUserSchema } from "./schema/user.schema";
 
+export default function routes(app: Express) {
+  app.get("/healthcheck", (req: Request, res: Response) => {
+    res.sendStatus(200);
+  });
 
-export default function routes(app:Express){
-    app.get("/healthcheck",(req:Request,res:Response)=>{
-           res.sendStatus(200)
-    })
+  app.post("/api/users", validate(createUserSchema), createUserHandler);
 
-    app.post("/api/users", validate(createUserSchema), createUserHandler)
+  app.post(
+    "/api/sessions",
+    validate(createSessionSchema),
+    createSessionHandler
+  );
 
-    app.post("/api/sessions",  validate(createSessionSchema), createSessionHandler)
+  app.get("/api/sessions", requireUser, getUserSessionHandler);
 
-    app.get("/api/sessions", requireUser, getUserSessionHandler)
+  app.delete("/api/sessions", requireUser, deleteSessionHandler);
 
-    app.delete("/api/sessions", requireUser, deleteSessionHandler)
+  app.get("/api/budgets", requireUser, getBudgetsHandler);
 
-    app.post("/api/budgets",[requireUser, validate(createBudgetSchema)], createBudgetHandler)
+  app.post(
+    "/api/budgets",
+    [requireUser, validate(createBudgetSchema)],
+    createBudgetHandler
+  );
 
-    app.get("/api/budgets/:budgetId",validate(getBudgetSchema), getBudgetHandler)
+  app.get(
+    "/api/budgets/:budgetId",
+    validate(getBudgetSchema),
+    getBudgetHandler
+  );
 
-    app.put("/api/budgets/:budgetId", [requireUser,validate(updateBudgetSchema)], updateBudgetHandler)
+  app.put(
+    "/api/budgets/:budgetId",
+    [requireUser, validate(updateBudgetSchema)],
+    updateBudgetHandler
+  );
 
-    app.delete("/api/budgets/:budgetId", [requireUser,validate(deleteBudgetSchema)], deleteBudgetHandler)
+  app.delete(
+    "/api/budgets/:budgetId",
+    [requireUser, validate(deleteBudgetSchema)],
+    deleteBudgetHandler
+  );
 
-     app.post("/api/expenses",[requireUser, validate(createExpenseSchema)], createExpenseHandler)
+  app.post(
+    "/api/expenses",
+    [requireUser, validate(createExpenseSchema)],
+    createExpenseHandler
+  );
 
-    app.get("/api/expenses/:expenseId",validate(getExpenseSchema), getExpenseHandler)
+  app.get(
+    "/api/expenses/:expenseId",
+    validate(getExpenseSchema),
+    getExpenseHandler
+  );
 
-    app.put("/api/expenses/:expenseId", [requireUser,validate(updateExpenseSchema)], updateExpenseHandler)
+  app.put(
+    "/api/expenses/:expenseId",
+    [requireUser, validate(updateExpenseSchema)],
+    updateExpenseHandler
+  );
 
-    app.delete("/api/expenses/:expenseId", [requireUser,validate(deleteExpenseSchema)], deleteExpenseHandler)
-} 
-
+  app.delete(
+    "/api/expenses/:expenseId",
+    [requireUser, validate(deleteExpenseSchema)],
+    deleteExpenseHandler
+  );
+}

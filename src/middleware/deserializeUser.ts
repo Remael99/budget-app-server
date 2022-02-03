@@ -1,58 +1,50 @@
 //add user to request of session
-import {get} from "lodash"
+import { get } from "lodash";
 import { NextFunction, Request, Response } from "express";
 import { verifyJwt } from "../utils/jwt";
 import { reIssueAccessToken } from "../service/session.service";
 
+const deserializeUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const accessToken = get(req, "headers.authorization", "").replace(
+    /^Bearer\s/,
+    ""
+  );
 
+  const refreshToken = get(req, "headers.x-refresh", "").replace(
+    /^Bearer\s/,
+    ""
+  );
 
-const deserializeUser = async (req:Request,res:Response, next:NextFunction) => {
+  if (!accessToken) {
+    return next();
+  }
 
-  
-     const accessToken = get(req, "headers.authorization", "").replace(
-        /^Bearer\s/,
-        ""
-      );
+  const { decoded, expired } = verifyJwt(accessToken);
 
+  if (decoded) {
+    res.locals.user = decoded;
 
-      const refreshToken = get(req, "headers.x-refresh", "").replace(
-        /^Bearer\s/,
-        ""
-      );
+    return next();
+  }
 
-      
-     if(!accessToken){
-         return next()
-     }
+  if (expired && refreshToken) {
+    const newAccessToken = await reIssueAccessToken({ refreshToken });
 
-     const {decoded, expired} = verifyJwt(accessToken)
-
-   
-  
-     if(decoded){
-         res.locals.user = decoded
-         return next()
-     }
-
-     if(expired && refreshToken){
-        const newAccessToken = await reIssueAccessToken({refreshToken})
-
-    
-      
-        if(newAccessToken){
-         res.setHeader("x-access-token", newAccessToken)
-        }
-
-        const  result = verifyJwt(newAccessToken as string)
-
-        res.locals.user = result.decoded
-        return next()
+    if (newAccessToken) {
+      res.setHeader("x-access-token", newAccessToken);
     }
 
+    const result = verifyJwt(newAccessToken as string);
 
+    res.locals.user = result.decoded;
+    return next();
+  }
 
-     return next()
-     
-}
+  return next();
+};
 
-export default deserializeUser
+export default deserializeUser;
