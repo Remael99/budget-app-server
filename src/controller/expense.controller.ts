@@ -5,6 +5,7 @@ import {
   deleteExpense,
   findAndUpdateExpense,
   findExpense,
+  findExpenseUnderBudget,
 } from "../service/expense.service";
 
 export async function createExpenseHandler(req: Request, res: Response) {
@@ -41,7 +42,6 @@ export async function getExpenseHandler(req: Request, res: Response) {
 export async function updateExpenseHandler(req: Request, res: Response) {
   try {
     const userId = res.locals.user._id || res.locals.user._doc._id;
-    console.log(userId);
 
     const expenseId = req.params.expenseId;
 
@@ -96,6 +96,24 @@ export async function deleteExpenseHandler(req: Request, res: Response) {
     await deleteExpense({ expenseId });
 
     return res.status(200).send({ message: "deleted succesfully" });
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
+
+export async function getExpenseUnderBudget(req: Request, res: Response) {
+  try {
+    const budgetId = req.params.budgetId;
+
+    const expense = await findExpenseUnderBudget({ budgetId });
+
+    if (!expense) {
+      return res.status(404).send({
+        message: "expense does  not exist",
+      });
+    }
+
+    return res.send(expense);
   } catch (error: any) {
     throw new Error(error);
   }

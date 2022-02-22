@@ -17,8 +17,6 @@ export async function createBudgetHandler(req: Request, res: Response) {
 
     const checkBudgetExists = await findBudget({ name });
 
-    
-
     if (
       checkBudgetExists &&
       userId === String(checkBudgetExists.user) &&

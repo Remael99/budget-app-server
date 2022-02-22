@@ -10,6 +10,7 @@ import {
   createExpenseHandler,
   deleteExpenseHandler,
   getExpenseHandler,
+  getExpenseUnderBudget,
   updateExpenseHandler,
 } from "./controller/expense.controller";
 import {
@@ -88,6 +89,12 @@ export default function routes(app: Express) {
     "/api/expenses/:expenseId",
     validate(getExpenseSchema),
     getExpenseHandler
+  );
+
+  app.get(
+    "/api/expenses/:budgetId",
+    validate(getExpenseSchema),
+    getExpenseUnderBudget
   );
 
   app.put(

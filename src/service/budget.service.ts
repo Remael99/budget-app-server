@@ -5,13 +5,34 @@ import {
   UpdateQuery,
 } from "mongoose";
 import BudgetModel, { BudgetDocument } from "../model/budget.model";
+import { databaseResponseTimeHistogram } from "../utils/metrics";
 
 export async function createBudget(
   input: DocumentDefinition<
     Omit<BudgetDocument, "createdAt" | "updatedAt" | "budgetId">
   >
 ) {
-  return await BudgetModel.create(input);
+  const metricsLabel = {
+    operation: "createBudget",
+  };
+
+  const timer = databaseResponseTimeHistogram.startTimer();
+
+  try {
+    const result = await BudgetModel.create(input);
+
+    timer({
+      ...metricsLabel,
+      success: "true",
+    });
+    return result;
+  } catch (error: any) {
+    timer({
+      ...metricsLabel,
+      success: "false",
+    });
+    throw new Error(error);
+  }
 }
 
 export async function findBudget(
