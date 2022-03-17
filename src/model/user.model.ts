@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
+import { nanoid } from "./budget.model";
 
 //use for all models
 
@@ -32,6 +33,16 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+    verified: {
+      type: Boolean,
+    },
+    verificationCode: {
+      type: String,
+      default: () => `verification_${nanoid()}`,
+    },
+    passwordResetCode: {
+      type: String,
     },
   },
   { timestamps: true }

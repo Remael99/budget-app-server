@@ -18,7 +18,11 @@ import {
   deleteSessionHandler,
   getUserSessionHandler,
 } from "./controller/session.controller";
-import { createUserHandler } from "./controller/user.controller";
+import {
+  createUserHandler,
+  verifyUserHandler,
+  forgotPasswordHandler,
+} from "./controller/user.controller";
 import requireUser from "./middleware/requireUser";
 import validate from "./middleware/validateResource";
 import {
@@ -34,7 +38,11 @@ import {
   updateExpenseSchema,
 } from "./schema/expense.schema";
 import { createSessionSchema } from "./schema/session.schema";
-import { createUserSchema } from "./schema/user.schema";
+import {
+  createUserSchema,
+  verifyUserSchema,
+  forgotPassWordSchema,
+} from "./schema/user.schema";
 
 export default function routes(app: Express) {
   app.get("/healthcheck", (req: Request, res: Response) => {
@@ -42,6 +50,18 @@ export default function routes(app: Express) {
   });
 
   app.post("/api/users", validate(createUserSchema), createUserHandler);
+
+  app.post(
+    "/api/users/verify/:id/:verificationCode",
+    validate(verifyUserSchema),
+    verifyUserHandler
+  );
+
+  app.post(
+    "/api/users/forgot_password",
+    validate(forgotPassWordSchema),
+    forgotPasswordHandler
+  );
 
   app.post(
     "/api/sessions",
