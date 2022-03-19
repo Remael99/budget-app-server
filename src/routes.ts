@@ -22,6 +22,7 @@ import {
   createUserHandler,
   verifyUserHandler,
   forgotPasswordHandler,
+  resetPasswordHandler,
 } from "./controller/user.controller";
 import requireUser from "./middleware/requireUser";
 import validate from "./middleware/validateResource";
@@ -42,6 +43,7 @@ import {
   createUserSchema,
   verifyUserSchema,
   forgotPassWordSchema,
+  resetPassWordSchema,
 } from "./schema/user.schema";
 
 export default function routes(app: Express) {
@@ -61,6 +63,12 @@ export default function routes(app: Express) {
     "/api/users/forgot_password",
     validate(forgotPassWordSchema),
     forgotPasswordHandler
+  );
+
+  app.post(
+    "/api/users/resetPasword/:id/:passwordResetCode",
+    validate(resetPassWordSchema),
+    resetPasswordHandler
   );
 
   app.post(

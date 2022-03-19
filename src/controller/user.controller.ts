@@ -5,8 +5,14 @@ import {
   CreateUserInput,
   VerifyUserInput,
   forgotPasswordInput,
+  ResetPasswordInput,
 } from "../schema/user.schema";
-import { createUser, findUserById, findByEmail } from "../service/user.service";
+import {
+  createUser,
+  findUserById,
+  findByEmail,
+  findUser,
+} from "../service/user.service";
 import log from "../utils/logger";
 import { nanoid } from "nanoid";
 
@@ -71,13 +77,12 @@ export async function forgotPasswordHandler(
     const { email } = req.body;
 
     const message = "if user exists you will receive an email";
-  
+
     const user = await findByEmail(email);
-  
 
     if (!user) {
       log.debug(`user with emal ${email} does not exit`);
-      return res.send({  message });
+      return res.send({ message });
     }
 
     if (!user.verified) {
@@ -97,7 +102,36 @@ export async function forgotPasswordHandler(
       html: `<html> <head> <meta name="viewport" content="width=device-width, initial-scale=1"> <style> .card { box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); transition: 0.3s; width: 50%; height:fit-content; margin:auto; margin-top:50px; } .card:hover { box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2); } .container { padding: 2px 16px; } </style> </head> <body> <div style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;width: 50%;height:fit-content;margin:auto;margin-top:50px;" > <div class="container"> <h4><b>reset code</b></h4> <p> Hello ${user.name}, your password reset code <strong>${user.passwordResetCode}</strong> for user id ${user.id}, have a wonderful day! </p> </div> </div> </body> </html> `,
     });
     log.debug(`rest code sent to ${user.email}`);
-    return res.send({  message });
+    return res.send({ message });
+  } catch (error: any) {
+    return res.status(409).send(error.message);
+  }
+}
+
+export async function resetPasswordHandler(
+  req: Request<ResetPasswordInput["params"], {}, ResetPasswordInput["body"]>,
+  res: Response
+) {
+  try {
+    const { id, passwordResetCode } = req.params;
+    const { password } = req.body;
+
+    const user = await findUserById(id);
+
+    if (
+      !user ||
+      !user.passwordResetCode ||
+      user.passwordResetCode !== passwordResetCode
+    ) {
+      return res.status(400).send({ message: "could not reset password" });
+    }
+
+    user.passwordResetCode = null;
+
+    user.password = password;
+    await user.save();
+
+    res.send({ message: "succesfully updated" });
   } catch (error: any) {
     return res.status(409).send(error.message);
   }
